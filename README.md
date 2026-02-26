@@ -55,7 +55,9 @@ Jalankan command berikut untuk menginstall phpMyAdmin secara otomatis ke direkto
 
 ```bash
 export PHPMYADMIN_VERSION=$(curl --silent https://www.phpmyadmin.net/downloads/ | grep "btn btn-success download_popup" | sed -n 's/.*href="\([^"]*\).*/\1/p' | tr '/' '\n' | grep -E '^.*[0-9]+\.[0-9]+\.[0-9]+$')
+```
 
+```bash
 cd /var/www/pterodactyl/public && \
 wget https://files.phpmyadmin.net/phpMyAdmin/$PHPMYADMIN_VERSION/phpMyAdmin-$PHPMYADMIN_VERSION-all-languages.zip && \
 unzip phpMyAdmin-$PHPMYADMIN_VERSION-all-languages.zip && \
