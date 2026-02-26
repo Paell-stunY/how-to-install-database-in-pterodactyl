@@ -24,7 +24,7 @@ Or download and run it manually:
 
 ```bash
 wget https://raw.githubusercontent.com/Paell-stunY/how-to-install-database-in-pterodactyl/refs/heads/main/install.sh
-bash install-website-db.sh
+bash install.sh
 ```
 
 The script will automatically:
