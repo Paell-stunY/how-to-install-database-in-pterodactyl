@@ -2,8 +2,8 @@
 
 # ============================================================
 #   🗄️  Pterodactyl - Auto Setup Database + phpMyAdmin
-#   GitHub  : https://github.com/Paell-stunY
-#   Author  : Setup Script by rielliona
+#   GitHub  : https://github.com/
+#   Author  : Rielliona
 # ============================================================
 
 RED='\033[0;31m'
@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 BOLD='\033[1m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 banner() {
   echo -e "${CYAN}"
@@ -58,13 +58,12 @@ check_deps() {
 
 # ── Input credentials ───────────────────────────────────────
 get_credentials() {
-  log_step "Database User Configuration"
+  log_step "Database Configuration"
   echo ""
 
-  read -p "  Enter MySQL root password     : " -s MYSQL_ROOT_PASS
+  read -p "  Enter MySQL root password          : " -s MYSQL_ROOT_PASS
   echo ""
 
-  # Validate root connection
   if ! mysql -u root -p"$MYSQL_ROOT_PASS" -e "SELECT 1;" &>/dev/null; then
     log_error "Wrong MySQL root password or MySQL is not running!"
     exit 1
@@ -73,14 +72,14 @@ get_credentials() {
   echo ""
 
   while true; do
-    read -p "  Enter new username            : " DB_USER
+    read -p "  Enter username for database        : " DB_USER
     [[ -z "$DB_USER" ]] && log_warn "Username cannot be empty!" || break
   done
 
   while true; do
-    read -p "  Enter new password            : " -s DB_PASS
+    read -p "  Enter password for database        : " -s DB_PASS
     echo ""
-    read -p "  Confirm password              : " -s DB_PASS_CONFIRM
+    read -p "  Confirm password                   : " -s DB_PASS_CONFIRM
     echo ""
     if [[ "$DB_PASS" != "$DB_PASS_CONFIRM" ]]; then
       log_warn "Passwords do not match, try again!"
@@ -90,23 +89,37 @@ get_credentials() {
       break
     fi
   done
+
+  while true; do
+    read -p "  Enter name for database            : " DB_NAME
+    [[ -z "$DB_NAME" ]] && log_warn "Database name cannot be empty!" || break
+  done
+
+  echo ""
+
+  while true; do
+    read -p "  Enter your domain pterodactyl (e.g: domain.com): " DOMAIN
+    [[ -z "$DOMAIN" ]] && log_warn "Domain cannot be empty!" || break
+  done
 }
 
-# ── Create MySQL user ───────────────────────────────────────
-create_mysql_user() {
-  log_step "Creating MySQL User"
+# ── Create MySQL database & user ────────────────────────────
+create_mysql_database() {
+  log_step "Creating Database & User"
 
   mysql -u root -p"$MYSQL_ROOT_PASS" <<EOF
-USE mysql;
+CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;
 CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'%' WITH GRANT OPTION;
 GRANT ALL PRIVILEGES ON *.* TO '${DB_USER}'@'%' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 EOF
 
   if [[ $? -eq 0 ]]; then
-    log_success "User '${DB_USER}' created successfully!"
+    log_success "Database '${DB_NAME}' created successfully!"
+    log_success "User '${DB_USER}' created and granted access!"
   else
-    log_error "Failed to create MySQL user!"
+    log_error "Failed to create database or user!"
     exit 1
   fi
 }
@@ -123,7 +136,6 @@ install_phpmyadmin() {
     exit 1
   fi
 
-  # Remove old installation if exists
   if [[ -d "$PMA_DIR/pma" ]]; then
     log_warn "Old pma folder found, removing..."
     rm -rf "$PMA_DIR/pma"
@@ -160,7 +172,6 @@ install_phpmyadmin() {
   rm -f phpmyadmin.zip
   mv "phpMyAdmin-$PHPMYADMIN_VERSION-all-languages" pma
 
-  # Fix permissions
   chown -R www-data:www-data "$PMA_DIR/pma" 2>/dev/null || \
   chown -R nginx:nginx "$PMA_DIR/pma" 2>/dev/null
 
@@ -170,13 +181,14 @@ install_phpmyadmin() {
 # ── Summary ──────────────────────────────────────────────────
 show_summary() {
   echo ""
-  echo -e "  ${GREEN}${BOLD}╔══════════════════════════════════════════╗${NC}"
-  echo -e "  ${GREEN}${BOLD}║       ✅  INSTALLATION COMPLETE!         ║${NC}"
-  echo -e "  ${GREEN}${BOLD}╚══════════════════════════════════════════╝${NC}"
+  echo -e "  ${GREEN}${BOLD}╔════════════════════════════════════════════════╗${NC}"
+  echo -e "  ${GREEN}${BOLD}║         ✅  INSTALLATION COMPLETE!             ║${NC}"
+  echo -e "  ${GREEN}${BOLD}╚════════════════════════════════════════════════╝${NC}"
   echo ""
   echo -e "  ${BOLD}📋 Access Information:${NC}"
-  echo -e "  ─────────────────────────────────────────"
-  echo -e "  🌐 phpMyAdmin URL : ${CYAN}https://yourdomain.com/pma${NC}"
+  echo -e "  ──────────────────────────────────────────────────"
+  echo -e "  🌐 phpMyAdmin URL : ${CYAN}https://${DOMAIN}/pma${NC}"
+  echo -e "  🗄️  Database Name  : ${CYAN}${DB_NAME}${NC}"
   echo -e "  👤 DB Username    : ${CYAN}${DB_USER}${NC}"
   echo -e "  🔑 DB Password    : ${CYAN}(password you entered)${NC}"
   echo ""
@@ -194,7 +206,7 @@ main() {
   check_root
   check_deps
   get_credentials
-  create_mysql_user
+  create_mysql_database
   install_phpmyadmin
   show_summary
 }
