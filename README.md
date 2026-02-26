@@ -1,57 +1,86 @@
 # 🗄️ Database Setup on Pterodactyl + phpMyAdmin
 
-Panduan lengkap untuk membuat user database MySQL dan menginstall phpMyAdmin di Pterodactyl Panel.
+A complete guide to create a MySQL database user and install phpMyAdmin on Pterodactyl Panel.
 
 ---
 
 ## 📋 Prerequisites
 
-- Pterodactyl Panel sudah terinstall
-- Akses root ke server
-- MySQL/MariaDB sudah berjalan
+- Pterodactyl Panel is already installed
+- Root access to the server
+- MySQL/MariaDB is running
 
 ---
 
-## 🛠️ Step 1 — Buat User Database MySQL
+## ⚡ Quick Install — One Command (Recommended)
 
-Masuk ke MySQL sebagai root:
+Don't want to do it manually? Just run the script below and follow the prompts:
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/your-repo/main/setup-db-pma.sh)
+```
+
+Or download and run it manually:
+
+```bash
+wget https://raw.githubusercontent.com/your-repo/main/setup-db-pma.sh
+bash setup-db-pma.sh
+```
+
+The script will automatically:
+- ✅ Create a new MySQL user with your chosen credentials
+- ✅ Grant full privileges to the user
+- ✅ Detect & install the latest version of phpMyAdmin
+- ✅ Set correct file permissions
+
+> ⚠️ **Note:** Must be run as `root` or with `sudo`.
+
+---
+
+## 🛠️ Manual Setup
+
+Prefer to do it step by step? Follow the guide below.
+
+### Step 1 — Create MySQL Database User
+
+Login to MySQL as root:
 
 ```bash
 mysql -u root -p
 ```
 
-Pilih database MySQL:
+Select the MySQL database:
 
 ```sql
 use mysql;
 ```
 
-Buat user baru (ganti dengan kredensial kamu):
+Create a new user (replace with your credentials):
 
 ```sql
-CREATE USER 'username_kamu'@'%' IDENTIFIED BY 'password_kamu';
+CREATE USER 'your_username'@'%' IDENTIFIED BY 'your_password';
 ```
 
-Berikan semua hak akses:
+Grant all privileges:
 
 ```sql
-GRANT ALL PRIVILEGES ON *.* TO 'username_kamu'@'%' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'your_username'@'%' WITH GRANT OPTION;
 ```
 
-Flush privileges dan keluar:
+Flush privileges and exit:
 
 ```sql
 FLUSH PRIVILEGES;
 exit
 ```
 
-> ⚠️ **Catatan:** Ganti `username_kamu` dan `password_kamu` dengan username dan password yang kamu inginkan. Jangan gunakan karakter spesial yang tidak di-escape.
+> ⚠️ Replace `your_username` and `your_password` with your desired credentials. Avoid unescaped special characters.
 
 ---
 
-## 🌐 Step 2 — Install phpMyAdmin
+### Step 2 — Install phpMyAdmin
 
-Jalankan command berikut untuk menginstall phpMyAdmin secara otomatis ke direktori Pterodactyl:
+Run the following command to automatically install phpMyAdmin into the Pterodactyl directory:
 
 ```bash
 export PHPMYADMIN_VERSION=$(curl --silent https://www.phpmyadmin.net/downloads/ | grep "btn btn-success download_popup" | sed -n 's/.*href="\([^"]*\).*/\1/p' | tr '/' '\n' | grep -E '^.*[0-9]+\.[0-9]+\.[0-9]+$')
@@ -65,52 +94,46 @@ rm phpMyAdmin-$PHPMYADMIN_VERSION-all-languages.zip && \
 mv phpMyAdmin-$PHPMYADMIN_VERSION-all-languages pma
 ```
 
-Command di atas akan:
-1. Mendeteksi versi phpMyAdmin terbaru secara otomatis
-2. Mendownload phpMyAdmin ke direktori Pterodactyl
-3. Mengekstrak dan membersihkan file ZIP
-4. Memindahkan ke folder `pma`
+---
+
+### Step 3 — Access phpMyAdmin
+
+Once installation is complete, open your browser and go to:
+
+```
+https://yourdomain.com/pma
+```
+
+Login using the username and password you created in Step 1.
 
 ---
 
-## ✅ Step 3 — Akses phpMyAdmin
+## 🔒 Security Tips
 
-Setelah instalasi selesai, buka browser dan akses:
-
-```
-https://domainmu.com/pma
-```
-
-Login menggunakan username dan password yang sudah kamu buat di Step 1.
-
----
-
-## 🔒 Tips Keamanan
-
-- Gunakan password yang kuat dan unik
-- Pertimbangkan untuk membatasi akses phpMyAdmin hanya dari IP tertentu
-- Ganti nama folder `pma` dengan nama lain untuk keamanan ekstra
-- Aktifkan autentikasi dua faktor jika memungkinkan
+- Use a strong and unique password
+- Consider restricting phpMyAdmin access to specific IPs only
+- Rename the `pma` folder to something less obvious
+- Enable two-factor authentication if possible
 
 ---
 
 ## 🐛 Troubleshooting
 
-| Masalah | Solusi |
-|--------|--------|
-| Tidak bisa login MySQL | Pastikan password root benar dan MySQL berjalan |
-| phpMyAdmin tidak muncul | Cek apakah Nginx/Apache sudah reload setelah instalasi |
-| Error permission | Jalankan `chown -R www-data:www-data /var/www/pterodactyl/public/pma` |
-| Versi tidak terdeteksi | Cek koneksi internet server dan ulangi command export |
+| Issue | Solution |
+|-------|----------|
+| Cannot login to MySQL | Make sure root password is correct and MySQL is running |
+| phpMyAdmin not showing | Check if Nginx/Apache was reloaded after installation |
+| Permission error | Run `chown -R www-data:www-data /var/www/pterodactyl/public/pma` |
+| Version not detected | Check server internet connection and re-run the export command |
 
 ---
 
 ## 📄 License
 
-MIT License - bebas digunakan dan dimodifikasi.
+MIT License — free to use and modify.
 
 ---
 
 <div align="center">
-  Made with ❤️ for Pterodactyl Users
+  Made with ❤️ by Rielliona
 </div>
