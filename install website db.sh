@@ -2,8 +2,8 @@
 
 # ============================================================
 #   🗄️  Pterodactyl - Auto Setup Database + phpMyAdmin
-#   GitHub  : https://github.com/
-#   Author  : Setup Script by Claude
+#   GitHub  : https://github.com/Paell-stunY
+#   Author  : Setup Script by rielliona
 # ============================================================
 
 RED='\033[0;31m'
