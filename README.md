@@ -23,7 +23,7 @@ bash <(curl -s https://raw.githubusercontent.com/Paell-stunY/how-to-install-data
 Or download and run it manually:
 
 ```bash
-wget https://raw.githubusercontent.com/Paell-stunY/how-to-install-database-in-pterodactyl/refs/heads/main/install.sh)
+wget https://raw.githubusercontent.com/Paell-stunY/how-to-install-database-in-pterodactyl/refs/heads/main/install.sh
 bash install-website-db.sh
 ```
 
